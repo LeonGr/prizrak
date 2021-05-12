@@ -14,15 +14,15 @@ def spoof(mac_attacker, mac_victim, ip_to_spoof, ip_victim, interface):
 
     sendp(arp, iface=interface)
 
-#def get_mac(ip, interface):
-#    pakket = Ether(dst = 'ff:ff:ff:ff:ff:ff') / ARP(pdst = ip)
-#    pakket.show()
-#    answer, unanswered = srp(pakket, iface=interface, timeout = 1)
-#
-#    if answer:
-#        sent, received = answer[0]
-#        return received.src
-#    else:
-#        print('MAC address of ip {ip} not found.'.format(ip=ip))
+def get_mac(ip, interface):
+    pakket = Ether(dst = 'ff:ff:ff:ff:ff:ff') / ARP(pdst = ip)
+    pakket.show()
+    answer, unanswered = srp(pakket, iface=interface, timeout = 1)
+
+    if answer:
+        sent, received = answer[0]
+        return received.src
+    else:
+        print('MAC address of ip {ip} not found.'.format(ip=ip))
 
 
