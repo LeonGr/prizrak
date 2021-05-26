@@ -8,7 +8,9 @@ if __name__ == "__main__":
     iface = "enp7s0"
     mac_attacker = get_if_hwaddr(iface)
     # Leon's victim
-    ip_victim = "192.168.192.16"
+    # ip_victim = "192.168.192.16"
+    # ip_victim = "192.168.192.7"
+    ip_victim = "192.168.192.6"
     # Karolina's victim
     # ip_victim = "192.168.0.39"
     #mac_victim = get_mac(ip_victim, iface)

