@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import IP, DNS, DNSRR, DNSQR, UDP
 from netfilterqueue import NetfilterQueue
 import os
 
@@ -44,15 +44,5 @@ def modify_packet(packet):
         del packet[UDP].chksum
 
     return packet
-
-# def dns_sniff(packet):
-    # if (packet.haslayer(DNS)):
-        # print("DNS request for IP: " + str(packet.summary()))
-        # try:
-            # packet = modify_packet(packet)
-        # except IndexError:
-            # pass
-        # print("Modified request for IP: " + str(packet.summary()))
-    # # sendp(packet, iface)
 
 dns_spoof()
