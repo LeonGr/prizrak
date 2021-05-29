@@ -28,9 +28,9 @@ class Server(BaseHTTPRequestHandler):
         else:
             self.send_response(200)
             self.end_headers()
-            f = open("./malware/reverse_shell", "rb")
+            f = open("." + self.path, "rb")
             content = f.read()
-            print(content)
+            # print(content)
             self.wfile.write(content)
             f.close()
 
