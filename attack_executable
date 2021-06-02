@@ -1,0 +1,5 @@
+#!/bin/bash
+# Running script with three arguments
+echo "Target IP: $1";
+echo "Gateway IP: $2";
+echo "Interface: $3";
