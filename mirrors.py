@@ -32,6 +32,6 @@ def getListOfMirrors():
     countryLinks = getSupLinks(getSoup(url))
     links = getLinks(countryLinks)
     links = list(dict.fromkeys(links))
-    print(links)
+    # print(links)
 
 getListOfMirrors()
