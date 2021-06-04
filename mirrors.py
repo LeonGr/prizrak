@@ -6,7 +6,7 @@ url = 'http://mirrors.ubuntu.com/'
 
 def getHTML(url):
     response = requests.get(url)
-    return response.content
+    return response.text
 
 def getSoup(url):
     htmlOfPage = getHTML(url)
@@ -21,17 +21,13 @@ def getLinks(countryLinks):
     allLinks = []
     for link in countryLinks:
         htmlOfPage = getHTML(link)
-        reLinks = re.findall(r'http.*?\\n', str(htmlOfPage))
-        for link in reLinks:
-            if (link[-2:] == "\\n"):
-                link = link[:-2]
-            allLinks.append(link)
+        allLinks += htmlOfPage.split("\n")
     return allLinks
 
 def getListOfMirrors():
     countryLinks = getSupLinks(getSoup(url))
     links = getLinks(countryLinks)
     links = list(dict.fromkeys(links))
-    # print(links)
+    print(links)
 
 getListOfMirrors()
