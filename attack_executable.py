@@ -57,7 +57,6 @@ if __name__ == "__main__":
     # ip_to_spoof = "192.168.0.1"
 
     while True:
-        print "Threads successfully closed"
         spoof(mac_attacker, mac_victim, ip_to_spoof, ip_victim, iface)
         time.sleep(1)
         except KeyboardInterrupt:
@@ -66,7 +65,7 @@ if __name__ == "__main__":
             t1.join()
             t2.join()
             t3.join()
-
+            print "Threads successfully closed"
 
 
 
