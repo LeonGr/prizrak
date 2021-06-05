@@ -1,5 +1,4 @@
 import requests
-import re
 from bs4 import BeautifulSoup
 
 url = 'http://mirrors.ubuntu.com/'
@@ -30,4 +29,4 @@ def getListOfMirrors():
     links = list(dict.fromkeys(links))
     print(links)
 
-getListOfMirrors()
+# getListOfMirrors()
