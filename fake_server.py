@@ -83,8 +83,8 @@ class Server(BaseHTTPRequestHandler):
             f.close()
 
             # remove the corrupted deb file
-            # print("remove deb file\n")
-            # os.system("rm ./{}".format(package_filename))
+            print("remove deb file\n")
+            os.system("rm ./{}".format(package_filename))
         elif "ubuntu/dists" in self.path:
             # if ubuntu/dists is in the request, the victim is using apt update
             print("apt update")
