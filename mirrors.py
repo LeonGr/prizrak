@@ -30,5 +30,4 @@ def get_list_of_mirrors():
     links = list(dict.fromkeys(links))
     # print(links)
     print("List of mirror links successfully obtained")
-
-# get_list_of_mirrors()
+    return links

