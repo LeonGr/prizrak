@@ -30,7 +30,6 @@ def process_packet(packet):
             scapy_packet = modify_packet(scapy_packet)
         except IndexError:
             pass
-        print("Modified request for IP: " + str(scapy_packet.summary()))
         packet.set_payload(bytes(scapy_packet))
 
     packet.accept()
@@ -50,5 +49,7 @@ def modify_packet(packet):
         del packet[IP].chksum
         del packet[UDP].len
         del packet[UDP].chksum
+
+        print("Modified request for IP: " + str(packet.summary()))
 
     return packet
