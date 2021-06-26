@@ -29,6 +29,5 @@ def get_list_of_mirrors():
     country_links = get_super_links(get_soup(url))
     links = get_links(country_links)
     links = list(dict.fromkeys(links))
-    # print(links)
     print("List of mirror links successfully obtained")
     return links
