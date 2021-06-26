@@ -24,9 +24,11 @@ def get_links(country_links):
     return all_links
 
 def get_list_of_mirrors():
+    print("Retrieving list of Ubuntu mirror server URLs...")
     country_links = get_super_links(get_soup(url))
     links = get_links(country_links)
     links = list(dict.fromkeys(links))
-    print(links)
+    # print(links)
+    print("List of mirror links successfully obtained")
 
-get_list_of_mirrors()
+# get_list_of_mirrors()

