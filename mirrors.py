@@ -14,7 +14,8 @@ def get_soup(url):
 def get_super_links(soup):
     a_tags = soup.find_all('a')
     all_links = [a.get('href') for a in a_tags]
-    return [url + link for link in all_links]
+    txt_links = filter(lambda link: "txt" in link, all_links)
+    return [url + link for link in txt_links]
 
 def get_links(country_links):
     all_links = []
