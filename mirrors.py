@@ -3,30 +3,30 @@ from bs4 import BeautifulSoup
 
 url = 'http://mirrors.ubuntu.com/'
 
-def getHTML(url):
+def get_HTML(url):
     response = requests.get(url)
     return response.text
 
-def getSoup(url):
-    htmlOfPage = getHTML(url)
-    return BeautifulSoup(htmlOfPage, 'html.parser')
+def get_soup(url):
+    html_of_page = get_HTML(url)
+    return BeautifulSoup(html_of_page, 'html.parser')
 
-def getSupLinks(soup):
-    aTags = soup.find_all('a')
-    allLinks = [a.get('href') for a in aTags]
-    return [url + link for link in allLinks]
+def get_super_links(soup):
+    a_tags = soup.find_all('a')
+    all_links = [a.get('href') for a in a_tags]
+    return [url + link for link in all_links]
 
-def getLinks(countryLinks):
-    allLinks = []
-    for link in countryLinks:
-        htmlOfPage = getHTML(link)
-        allLinks += htmlOfPage.split("\n")
-    return allLinks
+def get_links(country_links):
+    all_links = []
+    for link in country_links:
+        html_of_page = get_HTML(link)
+        all_links += html_of_page.split("\n")
+    return all_links
 
-def getListOfMirrors():
-    countryLinks = getSupLinks(getSoup(url))
-    links = getLinks(countryLinks)
+def get_list_of_mirrors():
+    country_links = get_super_links(get_soup(url))
+    links = get_links(country_links)
     links = list(dict.fromkeys(links))
     print(links)
 
-# getListOfMirrors()
+get_list_of_mirrors()

